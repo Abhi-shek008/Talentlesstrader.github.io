@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talentless Trader</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #1c1c1e;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: #1c1c1e;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
+
+        .container.dark-mode {
+            background-color: #333;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(to bottom, #1E90FF, #104E8B);
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .header .subtitles {
+            margin-top: 10px;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .circular-progress {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#1E90FF var(--progress, 0%), #f5f5f7 0%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #1c1c1e;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .circular-progress span {
+            position: absolute;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .content label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .content input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #f1f1f1;
+        }
+
+        .content input[type="number"].dark-mode {
+            background-color: #444;
+            color: white;
+        }
+
+        .content button {
+            width: 48%;
+            padding: 15px;
+            font-size: 16px;
+            background: #1E90FF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 5px 1%;
+            transition: background 0.3s;
+        }
+
+        .content button:hover {
+            background: #005bb5;
+        }
+
+        .win-btn {
+            background-color: #4caf50;
+        }
+
+        .win-btn:hover {
+            background-color: #388e3c;
+        }
+
+        .loss-btn {
+            background-color: #f44336;
+        }
+
+        .loss-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .start-btn {
+            background-color: #ff9800;
+            width: 100%;
+        }
+
+        .start-btn:hover {
+            background-color: #fb8c00;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background: #f5f5f7;
+            font-size: 16px;
+            color: #888;
+        }
+
+        .win {
+            background-color: #d4f8e8;
+            color: #007a5e;
+        }
+
+        .loss {
+            background-color: #fde2e1;
+            color: #d93025;
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 20px;
+            background: #f5f5f7;
+            border-top: 1px solid #e6e6e6;
+            font-size: 14px;
+        }
+
+        .footer-stats span {
+            font-weight: 600;
+        }
+
+        .dark-mode .footer-stats {
+            background: #333;
+        }
+
+        .dark-mode .footer-stats span {
+            color: #fff;
+        }
+
+        .youtube-btn {
+            background-color: #FF0000;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            margin-top: 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .youtube-btn:hover {
+            background-color: #d40000;
+        }
+
+        .graph-container {
+            margin: 20px auto;
+            width: 90%;
+            max-width: 400px;
+            background: #1c1c1e;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 200px !important;
+        }
+
+        .graph-header {
+            text-align: center;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .lock-screen input {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .lock-screen button {
+            padding: 10px;
+            font-size: 18px;
+            background-color: #1E90FF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="lock-screen" id="lockScreen">
+        <input type="password" id="passwordInput" placeholder="Enter Password">
+        <button onclick="unlockPage()">Unlock</button>
+    </div>
+
+    <div class="container" id="container" style="display: none;">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Talentless Trader</h1>
+            <div class="subtitles">
+                <span>Daily Target: <b id="dailyTarget">70%</b></span>
+                <span>Accuracy: <b id="accuracy">0%</b></span>
+            </div>
+        </div>
+
+        <!-- Circular Progress Bar -->
+        <div class="circular-progress" id="progressCircle" style="--progress: 0%;">
+            <span>0%</span>
+        </div>
+
+        <!-- Next Trade Amount -->
+        <div id="nextTradeSection" style="text-align: center; margin-top: 20px; font-size: 18px; font-weight: bold; display: none;">
+            Next Trade Amount: $<span id="nextTradeAmount">0.00</span>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content">
+            <label for="capital">Enter Initial Capital:</label>
+            <input type="number" id="capital" placeholder="Enter amount" step="0.01">
+            <button class="start-btn" onclick="start()">Start</button>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="win-btn" onclick="recordAction('WIN')">Win</button>
+                <button class="loss-btn" onclick="recordAction('LOSS')">Loss</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trade No.</th>
+                        <th>Result</th>
+                        <th>Capital</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeTable"></tbody>
+            </table>
+        </div>
+
+        <!-- Graph Section -->
+        <div class="graph-container">
+            <div class="graph-header">Account Balance Over Trades</div>
+            <canvas id="balanceChart"></canvas>
+        </div>
+
+        <!-- Footer Stats -->
+        <div class="footer-stats">
+            <span>Total Trades: <b id="totalTrades">0</b></span>
+            <span>Wins: <b id="totalWins">0</b></span>
+            <span>Losses: <b id="totalLosses">0</b></span>
+        </div>
+
+        <!-- YouTube Channel Link Button -->
+        <a href="https://youtube.com/@talentless_trader" target="_blank">
+            <button class="youtube-btn">Visit Talentless Trader YouTube Channel</button>
+        </a>
+
+        <!-- Dark Mode Toggle Button -->
+        <button onclick="toggleDarkMode()" id="darkModeToggle" style="position: absolute; top: 20px; right: 20px; padding: 10px; background-color: #1E90FF; color: white; border: none; border-radius: 10px; font-size: 20px;">
+            ☀️
+        </button>
+    </div>
+
+    <script>
+        const correctPassword = "WORK HARD";
+
+        function unlockPage() {
+            const passwordInput = document.getElementById("passwordInput").value;
+            if (passwordInput === correctPassword) {
+                document.getElementById("lockScreen").style.display = "none";
+                document.getElementById("container").style.display = "block";
+            } else {
+                alert("Incorrect password!");
+            }
+        }
+
+        let capital = 0;
+        let initialCapital = 0;
+        let tradeNumber = 0;
+        let tradePercentages = [1.89, 7.68, 33.33, 100];
+        let currentLossIndex = 0;
+        let wins = 0;
+        let losses = 0;
+        const balanceHistory = [];
+
+        function start() {
+            capital = parseFloat(document.getElementById('capital').value);
+            initialCapital = capital;
+            if (isNaN(capital) || capital <= 0) {
+                alert("Please enter a valid initial capital!");
+                return;
+            }
+            tradeNumber = 0;
+            currentLossIndex = 0;
+            wins = 0;
+            losses = 0;
+            document.getElementById('tradeTable').innerHTML = ""; // Reset table
+            balanceHistory.length = 0;
+            balanceHistory.push(capital);
+
+            // Calculate and show the first trade amount
+            updateNextTradeAmount();
+            document.getElementById('nextTradeSection').style.display = "block";
+
+            updateProgress();
+            updateGraph();
+        }
+
+        function updateNextTradeAmount() {
+            let nextTradeAmount = (capital * tradePercentages[currentLossIndex] / 100).toFixed(2);
+            document.getElementById('nextTradeAmount').textContent = nextTradeAmount;
+        }
+
+        function recordAction(action) {
+            if (capital <= 0) {
+                alert("Capital is zero or not initialized. Please start again!");
+                return;
+            }
+
+            let tradeAmount = (capital * tradePercentages[currentLossIndex] / 100).toFixed(2);
+            let result = action === 'WIN' ? parseFloat(tradeAmount) : -parseFloat(tradeAmount);
+
+            capital += result;
+            tradeNumber++;
+            if (action === 'WIN') {
+                wins++;
+                currentLossIndex = 0; // Reset on win
+            } else {
+                losses++;
+                currentLossIndex = Math.min(currentLossIndex + 1, tradePercentages.length - 1); // Increment loss index
+            }
+
+            let table = document.getElementById('tradeTable');
+            let row = table.insertRow();
+            row.className = action === 'WIN' ? 'win' : 'loss';
+            row.innerHTML = `
+                <td>${tradeNumber}</td>
+                <td>${action}</td>
+                <td>${capital.toFixed(2)}</td>
+                <td>${tradeAmount}</td>
+            `;
+
+            balanceHistory.push(capital);
+            updateNextTradeAmount();
+            updateProgress();
+            updateGraph();
+        }
+
+        function updateProgress() {
+            let achieved = capital - initialCapital;
+            let target = initialCapital * 0.7; // 70% target
+            let achievedPercentage = Math.min((achieved / target) * 100, 100);
+
+            // Update circular progress
+            let progressCircle = document.getElementById('progressCircle');
+            progressCircle.style.setProperty('--progress', `${achievedPercentage}%`);
+            progressCircle.querySelector('span').textContent = `${Math.round(achievedPercentage)}%`;
+
+            // Update accuracy and stats
+            let accuracy = wins + losses > 0 ? (wins / (wins + losses)) * 100 : 0;
+            document.getElementById('accuracy').textContent = `${accuracy.toFixed(2)}%`;
+            document.getElementById('totalTrades').textContent = tradeNumber;
+            document.getElementById('totalWins').textContent = wins;
+            document.getElementById('totalLosses').textContent = losses;
+        }
+
+        function updateGraph() {
+            const trades = balanceHistory.map((_, index) => index + 1);
+            balanceChart.data.labels = trades;
+            balanceChart.data.datasets[0].data = balanceHistory;
+            balanceChart.update();
+        }
+
+        function toggleDarkMode() {
+            let body = document.body;
+            let container = document.getElementById('container');
+            let darkModeToggle = document.getElementById('darkModeToggle');
+            
+            body.classList.toggle('dark-mode');
+            container.classList.toggle('dark-mode');
+            let inputs = document.querySelectorAll('input');
+            inputs.forEach(input => input.classList.toggle('dark-mode'));
+            
+            // Toggle the icon between sun and moon
+            if (body.classList.contains('dark-mode')) {
+                darkModeToggle.textContent = '🌘'; // Moon icon for dark mode
+            } else {
+                darkModeToggle.textContent = '☀️'; // Sun icon for light mode
+            }
+        }
+
+        // Initialize the graph
+        const ctx = document.getElementById('balanceChart').getContext('2d');
+        const balanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Account Balance',
+                    data: [],
+                    borderColor: 'rgb(34, 139, 34)',
+                    backgroundColor: 'rgba(34, 139, 34, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Trades',
+                            color: 'white'
+                        },
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.2)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Account Balance',
+                            color: 'white'
+                        },
+                        ticks: {
+                            color: 'white',
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.2)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
