@@ -1,0 +1,1 @@
+talentless trader money management
